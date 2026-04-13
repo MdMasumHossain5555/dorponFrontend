@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { faceCarousel } from '../lib/carousel';
 
-// const images = [
-//   '/carousel1.jpg',
-//   '/carousel2.jpg',
-//   '/carousel3.jpg',
-//   '/carousel4.jpg',
-//   '/carousel5.avif',
-// ];
+const images = [
+  '/carousel1.jpg',
+  '/carousel2.jpg',
+  '/carousel3.jpg',
+  '/carousel4.jpg',
+  '/carousel5.avif',
+];
 
 export default function Carousel() {
     // data fetching
@@ -24,7 +24,7 @@ export default function Carousel() {
       fetchData();
     }, []);  
     // data fetching end
-  const images = carousel.map((item) => item.image); // Assuming the API returns an array of objects with an 'image' property
+  // const images = carousel.map((item) => item.image); // Assuming the API returns an array of objects with an 'image' property
   const [activeIndex, setActiveIndex] = useState(0);
   const timeoutRef = useRef(null);
   const delay = 3000;
