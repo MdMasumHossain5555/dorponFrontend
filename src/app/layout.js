@@ -3,8 +3,9 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { AuthProvider } from "./context/AuthContext";
+// import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./components/ThemeProvider";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,7 +23,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const token = await cookies().get("token")?.value || null;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value || null;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -30,15 +32,17 @@ export default async function RootLayout({ children }) {
       >
         <ThemeProvider
           attribute="data-theme"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider token={token}>
+          {/* <AuthProvider token={token}> */}
+            <Providers>
             <Navbar />
-            <div className="mt-16">{children}</div>
+              <div className="mt-20">{children}</div>
+            </Providers>
             <Footer />
-          </AuthProvider>
+          {/* </AuthProvider> */}
         </ThemeProvider>
       </body>
     </html>

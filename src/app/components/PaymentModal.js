@@ -34,21 +34,22 @@ export default function PaymentModal({ isOpen, setIsOpen, onPaymentConfirm }) {
       onClose={() => setIsOpen(false)}
       className="relative z-50"
     >
-      <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
-          <Dialog.Title className="text-xl font-semibold mb-4 text-center">
+        <Dialog.Panel className="w-full max-w-lg rounded-2xl border border-[#D4AF37]/12 bg-base-100 p-6 shadow-[0_10px_35px_rgba(0,0,0,0.18)]">
+          <Dialog.Title className="mb-5 text-center text-xl font-semibold text-base-content">
             Select Payment Method
           </Dialog.Title>
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="mb-4 grid grid-cols-2 gap-4">
             {paymentOptions.map((option) => (
               <label
                 key={option.value}
-                className={`flex items-center space-x-3 p-2 border rounded cursor-pointer hover:border-indigo-500 ${
+                className={`flex cursor-pointer items-center space-x-3 rounded-lg border p-2 transition ${
                   paymentMethod === option.value
-                    ? "border-indigo-600 bg-indigo-50"
-                    : "border-gray-300"
+                    ? "border-[#D4AF37] bg-[#D4AF37]/10"
+                    : "border-[#D4AF37]/15 bg-base-100 hover:border-[#D4AF37]/35 hover:bg-[#D4AF37]/5"
                 }`}
               >
                 <input
@@ -65,21 +66,23 @@ export default function PaymentModal({ isOpen, setIsOpen, onPaymentConfirm }) {
                   width={32}
                   height={32}
                 />
-                <span>{option.label}</span>
+                <span className="text-sm font-medium text-base-content">
+                  {option.label}
+                </span>
               </label>
             ))}
           </div>
 
           {paymentMethod && (
             <div className="mb-4">
-              <label className="block mb-1 text-sm font-medium text-gray-700">
+              <label className="mb-1 block text-sm font-medium text-base-content">
                 {paymentMethod === "cash"
                   ? "No info needed for Cash on Delivery"
                   : "Enter Payment Details"}
               </label>
               <input
                 type="text"
-                className="w-full border rounded px-3 py-2 text-sm"
+                className="w-full rounded-md border border-[#D4AF37]/15 bg-base-100 px-3 py-2 text-sm text-base-content outline-none placeholder:text-base-content/40 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20"
                 placeholder={
                   paymentMethod === "bkash"
                     ? "bKash Transaction ID"
@@ -97,7 +100,7 @@ export default function PaymentModal({ isOpen, setIsOpen, onPaymentConfirm }) {
 
           <button
             onClick={handleConfirm}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded mt-2"
+            className="mt-2 w-full rounded-md bg-[#D4AF37] py-2 font-semibold text-black transition hover:bg-[#c9a42f] hover:shadow-[#D4AF37]/20"
           >
             Confirm Payment
           </button>
