@@ -172,10 +172,10 @@ function Navbar() {
                   </div>
                 ) : (
                   <Link
-                    href="/login"
+                    href="/signin"
                     className="btn rounded-full border border-[#D4AF37] bg-[#D4AF37] text-black hover:bg-[#c9a42f]"
                   >
-                    Login
+                    Sign in
                   </Link>
                 )}
               </div>

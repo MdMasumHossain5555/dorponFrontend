@@ -4,8 +4,9 @@ import React from "react";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import useForm from "@/app/hooks/useFrom";
-import { registrationUser } from "@/app/lib/user";
+// import { registrationUser } from "@/app/lib/user";
 import Link from "next/link";
+import { useRegisterMutation } from "@/redux/services/authApi";
 
 const initialFormState = {
   first_name: "",
@@ -17,6 +18,7 @@ const initialFormState = {
 };
 
 function Registration() {
+  const [register, { data: result, isLoading, isError }] = useRegisterMutation();
   const { formData, handleChange, resetForm } = useForm(initialFormState);
 
   const handleSubmit = async (e) => {
@@ -35,7 +37,12 @@ function Registration() {
       password: formData.password,
     };
 
-    registrationUser(user);
+    await register(user);
+    if (result) {
+      alert("Registration successful!");
+    } else {
+      alert("Registration failed, please try again.");
+    }
     resetForm();
   };
 

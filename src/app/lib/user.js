@@ -1,16 +1,9 @@
+import { useRegisterMutation } from "@/redux/services/authApi";
 export async function registrationUser(user) {
+  const [register, {data:res , isLoading, isError}] = useRegisterMutation();
   console.log(user)
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(user),
-          credentials: "include", // IMPORTANT !!
-        });
-  
+        await register(user);
         const data = await res.json();
         if (!res.ok) {
           console.error("Registration failed:", data.message);

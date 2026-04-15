@@ -7,7 +7,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import useForm from "@/app/hooks/useFrom";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
+import { useLoginMutation } from "@/redux/services/authApi";
 
 const initialFormState = {
   email: "",
@@ -15,6 +15,7 @@ const initialFormState = {
 };
 
 function Login() {
+  const [login, { data: result, isLoading, isError }] = useLoginMutation();
   const router = useRouter();
   const { formData, handleChange, resetForm } = useForm(initialFormState);
 
@@ -24,7 +25,7 @@ function Login() {
       email: formData.email,
       password: formData.password,
     };
-
+    await login(user);
     if (result) {
       router.push(`/profile/${result._id}`);
     } else {
@@ -128,7 +129,7 @@ function Login() {
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-[#D4AF37] px-3 py-1.5 text-sm/6 font-semibold text-black shadow-lg transition hover:bg-[#c9a42f] hover:shadow-[#D4AF37]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37]"
               >
-                Login
+                {isLoading ? "Signing in..." : "Sign in"}
               </button>
             </div>
           </form>
