@@ -1,4 +1,3 @@
-import add from "../admin/products/add";
 
 const dotenv = require("dotenv");
 dotenv.config();
@@ -27,12 +26,6 @@ export async function addProduct(product) {
   }
 }
 
-export async function faceProduct() {
-  const res = await fetch(process.env.PRODUCT_URL);
-  console.log(res)
-  const products = await res.json();
-  return products;
-}
 export async function faceProductByID(id) {
   try {
     const res = await fetch(`${process.env.PRODUCT_URL}/pages/product/${id}`);
@@ -62,3 +55,5 @@ export async function faceProductByCategory(category) {
     return null;
   }
 }
+
+

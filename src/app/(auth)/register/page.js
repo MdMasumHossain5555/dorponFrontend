@@ -6,7 +6,9 @@ import { Eye, EyeOff } from "lucide-react";
 import useForm from "@/app/hooks/useFrom";
 // import { registrationUser } from "@/app/lib/user";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/redux/services/authApi";
+import { useRouter } from "next/router";
 
 const initialFormState = {
   first_name: "",
@@ -18,7 +20,8 @@ const initialFormState = {
 };
 
 function Registration() {
-  const [register, { data: result, isLoading, isError }] = useRegisterMutation();
+  const router = useRouter();
+  const [register, { data: result, isLoading, isError, isSuccess }] = useRegisterMutation();
   const { formData, handleChange, resetForm } = useForm(initialFormState);
 
   const handleSubmit = async (e) => {
@@ -38,8 +41,9 @@ function Registration() {
     };
 
     await register(user);
-    if (result) {
+    if (isSuccess) {
       alert("Registration successful!");
+      router.push("/signin");
     } else {
       alert("Registration failed, please try again.");
     }

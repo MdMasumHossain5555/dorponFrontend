@@ -6,6 +6,7 @@ import {useGetProductsQuery} from '@/redux/services/productApi';
 import CategorySidebar from "./CategorySidebar";
 import FilterPanel from "./FilterPanel";
 import ProductGrid from "./ProductGrid";
+import ShopPageSkeleton from "../skeleton/ShopPageSkeleton";
 
 const slugify = (text = "") =>
   text.toLowerCase().trim().replace(/\s+/g, "-");
@@ -55,8 +56,8 @@ export default function ShopClient() {
     return result;
   }, [allProducts, selectedCategory, sort, minPrice, maxPrice]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Something went wrong</div>;
+  if (isLoading) return <ShopPageSkeleton />;
+  if (isError) return <div className="text-red-500">Something went wrong</div>;
 
   return (
     <div className="grid grid-cols-12 gap-6 p-6">

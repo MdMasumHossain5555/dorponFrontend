@@ -28,17 +28,20 @@ function ProductDetail({ product }) {
     }
   };
 
-  const thumbnails = product.images || []; 
-  const color = product.colors || []; 
-  const features = product.features || []; 
-  console.log("Product Features:", features); // Log the features for debugging
-  console.log("Product Colors:", color); // Log the colors for debugging
-  console.log("Product : ", product); // Log the thumbnails for debugging
+  const thumbnails = product.images || [];
+  const color = product.colors || [];
+  const features = product.features || [];
+  console.log("Product Features:", features);
+  console.log("Product Colors:", color);
+  console.log("Product : ", product);
+
   const [selectedImage, setSelectedImage] = useState(thumbnails[0]);
   const [quantity, setQuantity] = useState(1);
+
   const increase = () => {
     setQuantity((prev) => prev + 1);
   };
+
   const decrease = () => {
     if (quantity > 1) {
       setQuantity((prev) => prev - 1);
@@ -47,8 +50,6 @@ function ProductDetail({ product }) {
 
   return (
     <>
-      {/* head tag start */}
-      {/* SEO Head Tags */}
       <Head>
         <title>{product.name} | MyShop</title>
         <meta
@@ -75,32 +76,31 @@ function ProductDetail({ product }) {
         />
         <meta name="twitter:image" content={product.images?.[0]} />
       </Head>
-      {/* head tag end */}
+
       <div className="bg-base-200">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-wrap mx-4 my-20">
-            <div className="w-full md:w-1/2 px-4 mb-8">
-              <Image
-                width={400}
-                height={80}
-                src={selectedImage}
-                alt={product.name}
-                unoptimized
-                objectFit="cover"
-                className="w-full max-h-50 xl:max-h-100 lg:max-h-100 md:max-h-80 sm:max-h-50 rounded-lg shadow-lg shadow-cyan-500/50 mb-4"
-                id="mainImage"
-              />
+          <div className="mx-4 my-20 flex flex-wrap">
+            <div className="mb-8 w-full px-4 md:w-1/2">
+              <div className="mb-4 flex h-[420px] w-full items-center justify-center overflow-hidden rounded-lg border border-[#D4AF37]/12 bg-base-100 shadow-lg shadow-[#D4AF37]/10">
+                <Image
+                  width={800}
+                  height={800}
+                  src={selectedImage}
+                  alt={product.name}
+                  unoptimized
+                  className="h-full w-full object-contain"
+                  id="mainImage"
+                />
+              </div>
 
-              <div className="flex gap-4 py-4 justify-center overflow-x-auto">
-                {/* start thamb */}
+              <div className="flex justify-center gap-4 overflow-x-auto py-4">
                 {thumbnails.map((thumb, index) => (
                   <div
                     key={index}
-                    className={`w-20 h-20 relative cursor-pointer border-2 ${
-                      selectedImage === thumb
-                        ? "border-blue-500"
+                    className={`relative h-20 w-20 cursor-pointer rounded-lg border-2 ${selectedImage === thumb
+                        ? "border-[#D4AF37]"
                         : "border-transparent"
-                    } rounded-lg`}
+                      }`}
                     onClick={() => setSelectedImage(thumb)}
                   >
                     <Image
@@ -109,55 +109,65 @@ function ProductDetail({ product }) {
                       layout="fill"
                       unoptimized
                       objectFit="cover"
-                      className="rounded-lg hover:opacity-80 shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition duration-300"
+                      className="rounded-lg shadow-lg shadow-[#D4AF37]/10 transition duration-300 hover:opacity-80 hover:shadow-[#D4AF37]/20"
                     />
                   </div>
                 ))}
-                {/* end thamb */}
               </div>
             </div>
-            <div className="w-full md:w-1/2 px-4">
-              <h2 className="text-3xl font-bold mb-2">{product.name}</h2>
-              <p className="text-gray-600 mb-4">SKU: {product.sku}</p>
+
+            <div className="w-full px-4 md:w-1/2">
+              <h2 className="mb-2 text-3xl font-bold text-base-content">
+                {product.name}
+              </h2>
+              <p className="mb-4 text-base-content/60">SKU: {product.sku}</p>
+
               <div className="mb-4">
-                <span className="text-2xl font-bold mr-2">$349.99</span>
-                <span className="text-gray-500 line-through">$399.99</span>
+                <span className="mr-2 text-2xl font-bold text-[#b89220]">
+                  $349.99
+                </span>
+                <span className="text-base-content/50 line-through">$399.99</span>
               </div>
-              <div className="flex items-center mb-4">
+
+              <div className="mb-4 flex items-center">
                 <StarRating rating={product.rating} />
-                {/* star rating end */}
-                <span className="ml-2 text-gray-600">
+                <span className="ml-2 text-base-content/60">
                   {product.rating} ({product.reviews} reviews)
                 </span>
               </div>
-              <p className="text-gray-700 mb-6">{product.description}</p>
+
+              <p className="mb-6 text-base-content/75">{product.description}</p>
 
               <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Color:</h3>
+                <h3 className="mb-2 text-lg font-semibold text-base-content">
+                  Color:
+                </h3>
                 <div className="flex space-x-2">
                   {color.map((color, index) => (
                     <button
                       key={index}
                       style={{ backgroundColor: color }}
-                      className={`w-8 h-8  rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:${color}`}
+                      className={`h-8 w-8 rounded-full border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2`}
                     ></button>
                   ))}
-                  {/*                   
-                  <button className="w-8 h-8 bg-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"></button>
-                  <button className="w-8 h-8 bg-blue-500 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"></button> */}
                 </div>
               </div>
 
               <div className="mb-6 space-x-4">
                 <label
                   htmlFor="quantity"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="mb-1 block text-sm font-medium text-base-content"
                 >
                   Quantity:
                 </label>
-                <button onClick={decrease} className=" w-12 text-xl text-center rounded-md border-gray-300  shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                <button
+                  onClick={decrease}
+                  className="w-12 rounded-md border border-[#D4AF37]/20 bg-base-100 text-center text-xl text-base-content shadow-sm transition hover:bg-[#D4AF37] hover:text-black focus:border-[#D4AF37] focus:ring focus:ring-[#D4AF37]/20 focus:ring-opacity-50"
+                >
                   -
                 </button>
+
                 <input
                   type="number"
                   id="quantity"
@@ -168,17 +178,21 @@ function ProductDetail({ product }) {
                     const val = Math.max(1, parseInt(e.target.value) || 1);
                     setQuantity(val);
                   }}
-                  className="w-12 text-center rounded-md border-gray-300  shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                  className="w-12 rounded-md border border-[#D4AF37]/20 bg-base-100 text-center text-base-content shadow-sm focus:border-[#D4AF37] focus:ring focus:ring-[#D4AF37]/20 focus:ring-opacity-50"
                 />
-                <button onClick={increase} className=" w-12 text-xl text-center rounded-md border-gray-300  shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+
+                <button
+                  onClick={increase}
+                  className="w-12 rounded-md border border-[#D4AF37]/20 bg-base-100 text-center text-xl text-base-content shadow-sm transition hover:bg-[#D4AF37] hover:text-black focus:border-[#D4AF37] focus:ring focus:ring-[#D4AF37]/20 focus:ring-opacity-50"
+                >
                   +
                 </button>
               </div>
 
-              <div className="flex space-x-4 mb-6">
+              <div className="mb-6 flex space-x-4">
                 <button
                   onClick={handleAddToCart}
-                  className="bg-indigo-600 flex gap-2 items-center text-white px-6 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="flex items-center gap-2 rounded-md bg-[#D4AF37] px-6 py-2 text-black transition hover:bg-[#c9a42f] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -196,7 +210,8 @@ function ProductDetail({ product }) {
                   </svg>
                   Add to Cart
                 </button>
-                <button className="bg-gray-200 flex gap-2 items-center  text-gray-800 px-6 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+
+                <button className="flex items-center gap-2 rounded-md bg-base-100 px-6 py-2 text-base-content border border-[#D4AF37]/20 transition hover:bg-[#D4AF37]/10 hover:text-[#b89220] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:ring-offset-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -216,8 +231,10 @@ function ProductDetail({ product }) {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2">Key Features:</h3>
-                <ul className="list-disc list-inside text-gray-700">
+                <h3 className="mb-2 text-lg font-semibold text-base-content">
+                  Key Features:
+                </h3>
+                <ul className="list-inside list-disc text-base-content/75">
                   {features.map((feature, index) => (
                     <li key={index} className="mb-1">
                       {feature}
@@ -229,6 +246,7 @@ function ProductDetail({ product }) {
           </div>
         </div>
       </div>
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -241,8 +259,8 @@ function ProductDetail({ product }) {
             sku: product.sku,
             offers: {
               "@type": "Offer",
-              priceCurrency: "USD", // you can make this dynamic too
-              price: "349.99", // you can use product.price
+              priceCurrency: "USD",
+              price: "349.99",
               availability: "https://schema.org/InStock",
             },
             aggregateRating: {

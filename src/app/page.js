@@ -1,3 +1,4 @@
+'use client';
 // import Image from "next/image";
 // import Link from "next/link";
 // import { faceProduct } from "./lib/products";
@@ -85,8 +86,12 @@ import TopProductsSection from "@/app/components/home/TopProductsSection";
 import OfferProductsSection from "@/app/components/home/OfferProductsSection";
 import NewArrivalsSection from "@/app/components/home/NewArrivalsSection";
 import ProductCard from "@/app/components/ui/ProductCard";
+import { useGetProductsQuery } from "@/redux/services/productApi";
+import HomePageSkeleton from "@/app/components/skeleton/ShopPageSkeleton";
 
 export default function Home() {
+  const { data: products, isLoading, isError } = useGetProductsQuery();
+  console.log(products)
   const categories = [
     { id: 1, name: "Skincare", description: "Serum, cleanser, toner, moisturizer", icon: "🧴" },
     { id: 2, name: "Makeup", description: "Lipstick, foundation, blush, compact", icon: "💄" },
@@ -94,16 +99,39 @@ export default function Home() {
     { id: 4, name: "Fragrance", description: "Perfume, mist and body spray", icon: "🌸" },
   ];
 
-  const bestSellingProducts = [
-    { _id: "1", name: "Product 1", price: 1200 },
-    { _id: "2", name: "Product 2", price: 1500 },
-    { _id: "3", name: "Product 3", price: 1800 },
-    { _id: "4", name: "Product 4", price: 2000 },
-  ];
+  const bestSellingProducts = [];
+  const topProducts = [];
+  const offerProducts = [];
+  const newArrivals = [];
 
-  const topProducts = bestSellingProducts;
-  const offerProducts = bestSellingProducts;
-  const newArrivals = bestSellingProducts;
+  if (isLoading) return <HomePageSkeleton />;
+  if (isError) return <div className="text-red-500">Something went wrong</div>;
+
+  products.forEach((product) => {
+    if (product.slug === "Best Selling") {
+      bestSellingProducts.push(product);
+    }
+  });
+  products.forEach((product) => {
+    if (product.slug === "Top Products") {
+      topProducts.push(product);
+    }
+  });
+  products.forEach((product) => {
+    if (product.slug === "Offer Products") {
+      offerProducts.push(product);
+    }
+  });
+  products.forEach((product) => {
+    if (product.slug === "New Arrivals") {
+      newArrivals.push(product);
+    }
+  });
+  console.log("best selling =>", bestSellingProducts);
+  console.log("top products =>", topProducts);
+  console.log("offer products =>", offerProducts);
+  console.log("new arrivals =>", newArrivals);
+  
 
   return (
     <main className="space-y-8 bg-base-100 px-4 py-8 md:px-8">

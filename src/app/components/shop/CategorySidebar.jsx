@@ -1,6 +1,8 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+const slugify = (text = "") =>
+  text.toLowerCase().trim().replace(/\s+/g, "-");
 
 export default function CategorySidebar({ categories, selectedCategory }) {
   const router = useRouter();
@@ -11,7 +13,7 @@ export default function CategorySidebar({ categories, selectedCategory }) {
     const params = new URLSearchParams(searchParams.toString());
 
     if (category) {
-      params.set("category", category);
+      params.set("category", slugify(category));
     } else {
       params.delete("category");
     }

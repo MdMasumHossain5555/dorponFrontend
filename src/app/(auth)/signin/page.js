@@ -15,7 +15,7 @@ const initialFormState = {
 };
 
 function Login() {
-  const [login, { data: result, isLoading, isError }] = useLoginMutation();
+  const [login, { data: result, isLoading, isError, isSuccess }] = useLoginMutation();
   const router = useRouter();
   const { formData, handleChange, resetForm } = useForm(initialFormState);
 
@@ -26,7 +26,7 @@ function Login() {
       password: formData.password,
     };
     await login(user);
-    if (result) {
+    if (isSuccess) {
       router.push(`/profile/${result._id}`);
     } else {
     }

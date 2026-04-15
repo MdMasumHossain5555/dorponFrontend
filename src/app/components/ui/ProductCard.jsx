@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { formatPrice } from '@/app/lib/formatPrice';
 
 export default function ProductCard({ product }) {
-  console.log("product:", product);
   const inWishlist = false;
   const router = useRouter();
 
@@ -70,17 +69,17 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Badges */}
-        {product.is_best_seller && (
+        {product.slug && (
           <Badge className="absolute top-2 left-2 bg-[#D4AF37] text-black text-xs">
-            Best Seller
+            {product.slug}
           </Badge>
         )}
 
-        {product.is_featured && !product.is_best_seller && (
+        {/* {product.is_featured && !product.is_best_seller && (
           <Badge className="absolute top-2 left-2 bg-[#b89220] text-black text-xs">
             Featured
           </Badge>
-        )}
+        )} */}
 
         {/* Hover buttons */}
         <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex">
