@@ -40,7 +40,7 @@ const features = [
 ];
 
 const stats = [
-  { value: "Beauty + Fashion", label: "Multiple style categories in one destination" },
+  { value: "Beautya + Fashion", label: "Multiple style categories in one destination" },
   { value: "Elegant Picks", label: "Curated products for modern and stylish everyday use" },
   { value: "Gift Friendly", label: "Perfect items for personal use or thoughtful gifting" },
 ];
