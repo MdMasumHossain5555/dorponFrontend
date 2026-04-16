@@ -8,7 +8,6 @@ import useForm from "@/app/hooks/useFrom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/redux/services/authApi";
-import { useRouter } from "next/router";
 
 const initialFormState = {
   first_name: "",
