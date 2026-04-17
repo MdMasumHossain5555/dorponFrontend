@@ -1,56 +1,38 @@
+"use client";
 import React from "react";
 import Image from "next/image";
-import { getOrders } from "@/app/lib/order";
-
-const getProductData = async (productId) => {
-  try {
-    const product = await faceProductByID(productId);
-    if (!product) {
-      throw new Error("Failed to fetch product");
-    }
-    return product;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error;
-  }
-};
-
-const getData = async () => {
-  try {
-    const res = await getOrders();
-    const orders = res;
-    const productData = [];
-    for (const order of orders) {
-      for (const product of order.products) {
-        console.log("product : ", product.productId);
-        const Data = await getProductData(product.productId);
-        productData.push({
-          ...Data,
-          status: order.status,
-          _id: order._id,
-          orderId: order._id,
-        });
-        console.log("product data : ", productData);
-      }
-    }
-    return productData;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error;
-  }
-};
+import { useGetOrderByIdQuery } from "@/redux/services/orderApi";
+import { useParams } from "next/navigation";
 
 function OrderDetails() {
-  const data = async ()=>{
-    
+  const params = useParams();
+  const orderId = params.id;
+  
+  const { data: order, isLoading, error } = useGetOrderByIdQuery(orderId);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
+
+  if (error || !order) {
+    return (
+      <div className="text-center py-10 text-red-500">
+        Error loading order details
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="header">
         <h1 className="text-3xl">Order Details</h1>
         <p className="flex gap-3">
           <span className="text-gray-500">Order number :</span>
-          <span>w99</span> . <span>May 28, 2025</span>
+          <span>{order._id || 'N/A'}</span> . <span>{new Date(order.createdAt).toLocaleDateString()}</span>
         </p>
       </div>
 
@@ -67,17 +49,16 @@ function OrderDetails() {
           />
         </div>
         <div className="w-2/3">
-          <h3 className="text-2xl">makeup Product</h3>
-          <p className="mt-2">$500</p>
+          <h3 className="text-2xl">Order Summary</h3>
+          <p className="mt-2">Total: ${order.subtotal || '0'}</p>
           <p className="text-gray-600 mt-2">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            {order.paymentMethod && `Payment Method: ${order.paymentMethod}`}
           </p>
           <div className="flex gap-6 mt-8">
             <div className="w-1/2">
               <h3>Delivery address</h3>
-              <p>Floyd Miles </p>
-              <p> 7363 Cynthia Pass Toronto,</p>
+              <p>{order.full_name || 'N/A'}</p>
+              <p>{order.address || 'N/A'}</p>
               <p>ON N3Y 4H8</p>
             </div>
             <div className="w-1/2">

@@ -4,28 +4,65 @@ import Image from "next/image";
 import React from "react";
 import Head from "next/head";
 import { useState } from "react";
-import { addToCart } from "@/app/lib/cart";
+import { useAddToCartMutation } from "@/redux/services/cartApi";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useWishlist } from "@/app/hooks/useWishlist";
 const dotenv = require("dotenv");
 dotenv.config();
 
 function ProductDetail({ product }) {
+  const [addToCart, { isLoading }] = useAddToCartMutation();
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const router = useRouter();
+  const pathname = usePathname();
+  const productId = product?._id || product?.id || product?.productId;
+  const inWishlist = isInWishlist(productId);
   const fullUrl =
     process.env.NEXT_PUBLIC_BASE_URL + `/product/${product._id}` ||
     `http://localhost:3000/pages/product/${product._id}`;
 
   const handleAddToCart = async () => {
+    const productId = product?._id || product?.id;
+
+    if (!productId) {
+      toast.error("Failed to add product to cart.");
+      return;
+    }
+
     const cartItem = {
-      productId: product._id,
+      productId,
       quantity: quantity,
     };
-    const result = await addToCart(cartItem);
-    if (result) {
-      console.log("Product added to cart:", result);
-      alert("Product added to cart successfully!");
-    } else {
-      console.error("Failed to add product to cart.");
-      alert("Failed to add product to cart.");
+    try {
+      await addToCart(cartItem).unwrap();
+      console.log("Product added to cart:", cartItem);
+      toast.success("Product added to cart successfully!");
+    } catch (error) {
+      console.error("Failed to add product to cart:", error);
+      if (error?.status === 401) {
+        router.push(`/signin?redirect=${encodeURIComponent(pathname || "/")}`);
+        return;
+      }
+
+      toast.error("Failed to add product to cart.");
     }
+  };
+
+  const handleWishlist = () => {
+    const result = toggleWishlist(product);
+
+    if (result.removed) {
+      toast.success("Removed from wishlist");
+      return;
+    }
+
+    if (result.added) {
+      toast.success("Added to wishlist!");
+      return;
+    }
+
+    toast.error("Unable to update wishlist.");
   };
 
   const thumbnails = product.images || [];
@@ -192,7 +229,8 @@ function ProductDetail({ product }) {
               <div className="mb-6 flex space-x-4">
                 <button
                   onClick={handleAddToCart}
-                  className="flex items-center gap-2 rounded-md bg-[#D4AF37] px-6 py-2 text-black transition hover:bg-[#c9a42f] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2"
+                  disabled={isLoading}
+                  className="flex items-center gap-2 rounded-md bg-[#D4AF37] px-6 py-2 text-black transition hover:bg-[#c9a42f] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -208,13 +246,20 @@ function ProductDetail({ product }) {
                       d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
                     />
                   </svg>
-                  Add to Cart
+                  {isLoading ? "Adding..." : "Add to Cart"}
                 </button>
 
-                <button className="flex items-center gap-2 rounded-md bg-base-100 px-6 py-2 text-base-content border border-[#D4AF37]/20 transition hover:bg-[#D4AF37]/10 hover:text-[#b89220] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:ring-offset-2">
+                <button
+                  onClick={handleWishlist}
+                  className={`flex items-center gap-2 rounded-md border px-6 py-2 transition focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:ring-offset-2 ${
+                    inWishlist
+                      ? "border-[#D4AF37] bg-[#D4AF37]/10 text-[#b89220]"
+                      : "border-[#D4AF37]/20 bg-base-100 text-base-content hover:bg-[#D4AF37]/10 hover:text-[#b89220]"
+                  }`}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
+                    fill={inWishlist ? "currentColor" : "none"}
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
@@ -226,7 +271,7 @@ function ProductDetail({ product }) {
                       d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
                     />
                   </svg>
-                  Wishlist
+                  {inWishlist ? "Wishlisted" : "Wishlist"}
                 </button>
               </div>
 

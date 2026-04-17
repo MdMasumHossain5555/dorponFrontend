@@ -13,7 +13,7 @@ const useForm = (initialState) => {
 
   const resetForm = () => setFormData(initialState);
 
-  return { formData, handleChange, resetForm };
+  return { formData, setFormData, handleChange, resetForm };
 };
 
 export default useForm;

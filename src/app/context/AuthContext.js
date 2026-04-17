@@ -1,30 +1,25 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from 'react';
-// import Cookies from 'js-cookie';
-import { logoutUser } from '../lib/user';
+import { useLogoutUserMutation } from '@/redux/services/authApi';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({token, children }) => {
   const [user, setUser] = useState(token ? { loggedIn: true } : null);
-
-  // useEffect(() => {
-  //   const token = Cookies.get('token');
-  //   if (token) {
-  //     // In a real app, you'd verify the token and fetch user data
-  //     setUser({ loggedIn: true });
-  //   }
-  // }, []);
+  const [logoutMutation] = useLogoutUserMutation();
 
   const login = (userData) => {
-    // Cookies.set('token', userData.token, { expires: 7 });
     setUser({ loggedIn: true });
   };
 
   const logout = async () => {
-    await logoutUser();
-    // Cookies.remove('token');
-    setUser(null);
+    try {
+      await logoutMutation().unwrap();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setUser(null);
+    }
   };
 
   return (

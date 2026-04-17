@@ -3,13 +3,46 @@ import Link from "next/link";
 import React from "react";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaUserCircle } from "react-icons/fa";
-// import { useAuth } from "../context/AuthContext";
+import { Heart } from "lucide-react";
+import { useAuth } from "@/app/hooks/useAuth";
+import { useWishlist } from "@/app/hooks/useWishlist";
+import { useLogoutUserMutation } from "@/redux/services/authApi";
+import { useGetCartQuery } from "@/redux/services/cartApi";
 import { useTheme } from "next-themes";
+import { usePathname, useRouter } from "next/navigation";
 
 function Navbar() {
-  // const { user, logout } = useAuth();
-  const user = null; // Placeholder for user state
+  const { user, isLoading } = useAuth();
+  const { wishlistCount } = useWishlist();
+  const [logoutUser, { isLoading: isLoggingOut }] = useLogoutUserMutation();
+  const { data: cartData } = useGetCartQuery(undefined, { skip: !user });
+  const router = useRouter();
+  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+
+  const cartItems = Array.isArray(cartData) ? cartData : cartData?.data || [];
+  const cartCount = cartItems.reduce((sum, cart) => {
+    const quantityFromItems = (cart?.products || []).reduce(
+      (itemSum, item) => itemSum + (Number(item?.quantity) > 0 ? Number(item.quantity) : 0),
+      0
+    );
+    return sum + quantityFromItems;
+  }, 0);
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      // Call logout API - the mutation handles cache clearing
+      await logoutUser().unwrap();
+      
+      // Navigate after logout completes
+      router.push("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Still navigate even if logout fails
+      router.push("/");
+    }
+  };
 
   const navItem = (
     <>
@@ -121,7 +154,7 @@ function Navbar() {
               </label>
             </div>
 
-            <div className="navbar-end space-x-1 md:space-x-2.5 md:px-10">
+            <div className="navbar-end flex items-center gap-1 md:gap-2.5 md:px-10">
               {/* <div>
                 <label className="swap swap-rotate text-white">
                   <input
@@ -149,30 +182,64 @@ function Navbar() {
                 </label>
               </div> */}
 
-              <div>
+              <div className="h-8 w-8 flex items-center justify-center">
                 <Link
-                  href={"/cart"}
-                  className="inline-flex text-white transition hover:text-[#D4AF37]"
+                  href={"/wishlist"}
+                  className="relative inline-flex h-8 w-8 items-center justify-center text-white transition hover:text-[#D4AF37]"
                 >
-                  <CgShoppingCart className="h-7 w-7 sm:h-5 sm:w-5" />
+                  <Heart className="h-5 w-5" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D4AF37] text-black text-[10px] leading-[18px] font-bold text-center">
+                      {wishlistCount > 99 ? "99+" : wishlistCount}
+                    </span>
+                  )}
                 </Link>
               </div>
 
-              <div>
-                {user ? (
-                  <div className="avatar avatar-online">
-                    <Link
-                      href="/profile/user"
-                      className="justify-between text-white transition hover:text-[#D4AF37]"
-                    >
-                      <div className="w-7 rounded-full">
-                        <FaUserCircle />
+              <div className="h-8 w-8 flex items-center justify-center">
+                <Link
+                  href={"/cart"}
+                  className="relative inline-flex h-8 w-8 items-center justify-center text-white transition hover:text-[#D4AF37]"
+                >
+                  <CgShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D4AF37] text-black text-[10px] leading-[18px] font-bold text-center">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+
+              <div className="h-8 w-8 flex items-center justify-center">
+                {isLoading ? (
+                  <div className="animate-pulse h-8 w-8 flex items-center justify-center">
+                    <FaUserCircle className="h-5 w-5 text-gray-400" />
+                  </div>
+                ) : user ? (
+                  <div className="dropdown dropdown-end h-8 w-8 flex items-center justify-center">
+                    <button className="flex h-8 w-8 items-center justify-center text-white hover:text-[#D4AF37] transition focus:outline-none">
+                      <div className="w-7 h-7 rounded-full bg-[#D4AF37] flex items-center justify-center text-black font-bold text-sm">
+                        {user?.first_name?.charAt(0) || user?.email?.charAt(0) || "U"}
                       </div>
-                    </Link>
+                    </button>
+                    <ul className="dropdown-content mt-2 top-full right-0 z-[60] menu p-2 shadow bg-[#171717] rounded-box w-52 border border-[#D4AF37]/15">
+                      <li className="mb-1">
+                        <div className="text-white/70 text-xs pointer-events-none">
+                          {user?.first_name} {user?.last_name}
+                        </div>
+                        <div className="text-white/50 text-xs pointer-events-none">
+                          {user?.email}
+                        </div>
+                      </li>
+                      <li><Link href="/profile/user" className="text-white hover:text-black hover:bg-[#D4AF37]">My Profile</Link></li>
+                      <li><Link href="/cart" className="text-white hover:text-black hover:bg-[#D4AF37]">My Cart</Link></li>
+                      <li><Link href="/orders" className="text-white hover:text-black hover:bg-[#D4AF37]">My Orders</Link></li>
+                      <li><button onClick={handleLogout} disabled={isLoggingOut} className={`text-white hover:text-black hover:bg-red-500 ${isLoggingOut ? 'opacity-50 cursor-not-allowed' : ''}`}>{isLoggingOut ? 'Logging out...' : 'Logout'}</button></li>
+                    </ul>
                   </div>
                 ) : (
                   <Link
-                    href="/signin"
+                    href={`/signin?redirect=${encodeURIComponent(pathname || "/")}`}
                     className="btn rounded-full border border-[#D4AF37] bg-[#D4AF37] text-black hover:bg-[#c9a42f]"
                   >
                     Sign in

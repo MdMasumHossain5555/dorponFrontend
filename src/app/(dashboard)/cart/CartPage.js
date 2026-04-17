@@ -2,17 +2,28 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useRemoveCartItemMutation } from "@/redux/services/cartApi";
+import { toast } from "sonner";
 
-function CartPage({ productData }) {
+function CartPage({ productData = [] }) {
   console.log("Product Data:", productData); // Log the product data to the console
-  const [quantities, setQuantities] = useState(
-    productData.map((product) => product.quantity || 1)
-  );
-  const [selectedItems, setSelectedItems] = useState(
-    productData.map(() => true)
-  );
+  const [quantities, setQuantities] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [removeCartItem, { isLoading: isDeleting }] = useRemoveCartItemMutation();
+  
+  // Initialize/update state when productData changes
+  useEffect(() => {
+    if (productData && productData.length > 0) {
+      setQuantities(productData.map((product) => product.quantity || 1));
+      setSelectedItems(productData.map(() => true));
+    } else {
+      setQuantities([]);
+      setSelectedItems([]);
+    }
+  }, [productData]);
+  
   const handleSelectedItems = (index) => {
     const newSelectedItems = [...selectedItems];
     newSelectedItems[index] = !newSelectedItems[index];
@@ -40,18 +51,31 @@ function CartPage({ productData }) {
     setQuantities(newQuantities);
     setIsCartUpdated(true); // Set the flag to true when input changes
   };
+
+  const handleDeleteItem = async (index, cartItemId) => {
+    try {
+      await removeCartItem(cartItemId).unwrap();
+      console.log("Item removed from cart");
+      toast.success("Item removed from cart.");
+      // The cart will auto-refresh via RTK Query's cache invalidation
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+      toast.error(error?.data?.message || "Failed to remove item from cart.");
+    }
+  };
+
   const handleCartUpdate = () => {
     // Cart update logic (API call, total update, etc.)
     console.log("Cart updated with:", quantities);
     setIsCartUpdated(false); // Hide button again
   };
 
-  const totalPrice = productData.reduce((total, product, index) => {
+  const totalPrice = productData && productData.length > 0 ? productData.reduce((total, product, index) => {
     if (selectedItems[index]) {
-      return total + product.price * quantities[index];
+      return total + (product.price || 0) * (quantities[index] || 1);
     }
     return total;
-  }, 0);
+  }, 0) : 0;
   const shippingCost = totalPrice > 0 ? 4.99 : 0; // Example shipping cost
   const subtotal = totalPrice + shippingCost;
   console.log("Subtotal:", subtotal); // Log the subtotal to the console
@@ -108,8 +132,8 @@ function CartPage({ productData }) {
                     <Image
                       width={400}
                       height={70}
-                      src={product.images[0]}
-                      alt={product.name}
+                      src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.png"}
+                      alt={product.name || "Product"}
                       unoptimized
                       className="w-full rounded-lg sm:w-40"
                     />
@@ -165,20 +189,27 @@ function CartPage({ productData }) {
                             Total : Tk. {productTotal.toFixed(2)}
                           </p>
 
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            className="h-5 w-5 cursor-pointer duration-150 text-base-content/70 hover:text-[#D4AF37]"
+                          <button
+                            onClick={() => handleDeleteItem(index, product.productId)}
+                            disabled={isDeleting}
+                            className="duration-150 text-base-content/70 hover:text-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Remove from cart"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                              className="h-5 w-5 cursor-pointer"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     </div>

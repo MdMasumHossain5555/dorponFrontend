@@ -4,8 +4,10 @@ import Link from "next/link";
 import React from "react";
 import { useState, useEffect } from "react";
 import useForm from "@/app/hooks/useFrom";
-import { submitOrder } from "@/app/lib/order";
+import useAuth from "@/app/hooks/useAuth";
+import { useCreateOrderMutation } from "@/redux/services/orderApi";
 import PaymentModal from "@/app/components/PaymentModal";
+import { toast } from "sonner";
 
 const initialFormState = {
   userId: "",
@@ -26,7 +28,9 @@ const initialFormState = {
 function Chackout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
-  const { formData, handleChange, resetForm } = useForm(initialFormState);
+  const { user } = useAuth();
+  const { formData, setFormData, handleChange, resetForm } = useForm(initialFormState);
+  const [createOrder, { isLoading: isSubmitting }] = useCreateOrderMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,17 +57,12 @@ function Chackout() {
     };
 
     try {
-      const submit = await submitOrder(Order);
-
-      if (submit?.success) {
-        alert("Order submitted successfully");
-        resetForm();
-      } else {
-        alert("Order submission failed");
-      }
+      await createOrder(Order).unwrap();
+      toast.success("Order submitted successfully");
+      resetForm();
     } catch (err) {
       console.error("Error submitting order:", err);
-      alert("Something went wrong!");
+      toast.error("Something went wrong!");
     }
   };
 
@@ -77,6 +76,24 @@ function Chackout() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fullName =
+      `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
+      user.name ||
+      "";
+
+    setFormData((prev) => ({
+      ...prev,
+      userId: prev.userId || user._id || user.id || "",
+      name: prev.name || fullName,
+      email: prev.email || user.email || "",
+      number: prev.number || user.number || "",
+      address: prev.address || user.address || "",
+    }));
+  }, [setFormData, user]);
 
   const totalPrice = checkoutItem.reduce((total, item) => {
     return total + item.price * item.quantity;

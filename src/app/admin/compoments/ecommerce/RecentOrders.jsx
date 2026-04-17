@@ -1,3 +1,4 @@
+"use client";
 import {
   Table,
   TableBody,
@@ -5,56 +6,29 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { getOrders } from "@/app/lib/order";
-import { faceProductByID } from "@/app/lib/products";
+import { useGetMyOrdersQuery } from "@/redux/services/orderApi";
 import Badge from "../ui/badge/Badge";
 import Image from "next/image";
 
-// let tableData = [];
-const getProductData = async (productId) => {
-  try {
-    const product = await faceProductByID(productId);
-    if (!product) {
-      throw new Error("Failed to fetch product");
-    }
-    return product;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error;
+export default function RecentOrders() {
+  const { data: orders = [], isLoading, error } = useGetMyOrdersQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
-};
 
-
-const getData = async () => {
-  try {
-    const res = await getOrders();
-    const orders = res;
-    const productData = [];
-    for (const order of orders) {
-      for (const product of order.products) {
-        console.log("product : ", product.productId);
-        const Data = await getProductData(product.productId);
-        productData.push({
-          ...Data,
-          status: order.status,
-          _id: order._id,
-          orderId: order._id,
-        });
-        console.log("product data : ", productData);
-      }
-      
-    }
-    return productData;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error;
+  if (error) {
+    return (
+      <div className="text-center py-4 text-red-500">
+        Error loading orders
+      </div>
+    );
   }
-};
 
-
-export default async function RecentOrders() {
-  const tableData = await getData()
-  console.log("all product data : ", tableData);
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">

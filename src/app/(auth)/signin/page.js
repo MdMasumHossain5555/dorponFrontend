@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import useForm from "@/app/hooks/useFrom";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLoginMutation } from "@/redux/services/authApi";
 
 const initialFormState = {
@@ -15,9 +15,12 @@ const initialFormState = {
 };
 
 function Login() {
-  const [login, { data: result, isLoading, isError, isSuccess }] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { formData, handleChange, resetForm } = useForm(initialFormState);
+  const redirectTo = searchParams.get("redirect");
+  const isSafeRedirect = redirectTo?.startsWith("/") ? redirectTo : null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,9 +28,13 @@ function Login() {
       email: formData.email,
       password: formData.password,
     };
-    await login(user);
-    if (isSuccess) {
-      router.push(`/profile/${result._id}`);
+    const authResult = await login(user);
+    if (authResult?.data) {
+      if (isSafeRedirect) {
+        router.push(isSafeRedirect);
+      } else {
+        router.push(`/profile/${authResult.data._id}`);
+      }
     } else {
     }
     resetForm();
