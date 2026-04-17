@@ -14,8 +14,6 @@ const rawBaseQuery = fetchBaseQuery({
       headers.set("authorization", `Bearer ${token}`);
     }
 
-    headers.set("content-type", "application/json");
-
     return headers;
   },
   credentials: "include",

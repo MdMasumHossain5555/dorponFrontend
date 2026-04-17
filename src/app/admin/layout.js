@@ -4,11 +4,11 @@ import Header from "../components/admin/Header";
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen bg-[#0b0f14] text-slate-100">
       <Sidebar />
-      <div className="flex flex-col flex-1">
+      <div className="flex min-h-screen flex-1 flex-col">
         <Header />
-        <main className="flex-1 p-4 bg-gray-100 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-[#10151d] p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

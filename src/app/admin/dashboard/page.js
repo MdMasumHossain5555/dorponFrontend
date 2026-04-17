@@ -1,16 +1,18 @@
-// app/admin/dashboard/page.js
-import Card from "../../components/admin/Card";
+import { EcommerceMetrics } from "../compoments/ecommerce/EcommerceMetrics";
 
 export default function Dashboard() {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Dashboard</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card title="Total Sales" value="$12,340" />
-        <Card title="Orders" value="1,234" />
-        <Card title="Customers" value="567" />
-        <Card title="Revenue" value="$98,000" />
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-800 dark:text-white/90">
+          Dashboard
+        </h2>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Live store metrics pulled with RTK Query.
+        </p>
       </div>
+
+      <EcommerceMetrics />
     </div>
   );
 }

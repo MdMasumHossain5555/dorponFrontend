@@ -8,31 +8,63 @@ export const productApi = baseApi.injectEndpoints({
         params,
       }),
       providesTags: (result) =>
-        result?.data
+        Array.isArray(result)
           ? [
-              ...result.data.map((item) => ({
+              ...result.map((item) => ({
                 type: "Product",
-                id: item.id,
+                id: item._id || item.id,
               })),
               { type: "Product", id: "LIST" },
             ]
           : [{ type: "Product", id: "LIST" }],
     }),
 
-    getProductBySlug: builder.query({
-      query: (slug) => `/products/${slug}`,
-      providesTags: (result, error, slug) => [{ type: "Product", id: slug }],
+    getProductById: builder.query({
+      query: (id) => `/products/${id}`,
+      providesTags: (result, error, id) => [{ type: "Product", id }],
     }),
 
     getRelatedProducts: builder.query({
       query: (product_id) => `/products/${product_id}/related`,
       providesTags: [{ type: "Product", id: "RELATED" }],
     }),
+
+    createProduct: builder.mutation({
+      query: (body) => ({
+        url: "/products",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [{ type: "Product", id: "LIST" }],
+    }),
+
+    updateProduct: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/products/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+      ],
+    }),
+
+    deleteProduct: builder.mutation({
+      query: (id) => ({
+        url: `/products/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: [{ type: "Product", id: "LIST" }],
+    }),
   }),
 });
 
 export const {
   useGetProductsQuery,
-  useGetProductBySlugQuery,
+  useGetProductByIdQuery,
   useGetRelatedProductsQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
 } = productApi;

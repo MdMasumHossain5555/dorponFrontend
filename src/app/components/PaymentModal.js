@@ -7,10 +7,8 @@ const paymentOptions = [
   { value: "bkash", label: "bKash", logo: "/logos/bkash.png" },
   { value: "nagad", label: "Nagad", logo: "/logos/nagad.png" },
   { value: "rocket", label: "Rocket", logo: "/logos/rocket.png" },
-  { value: "islami", label: "Islami Bank Card", logo: "/logos/islami.png" },
-  { value: "dbbl", label: "Dutch-Bangla Bank Card", logo: "/logos/dbbl.png" },
-  { value: "credit", label: "Credit Card", logo: "/logos/credit.png" },
-  { value: "master", label: "MasterCard", logo: "/logos/mastercard.png" },
+  { value: "visa", label: "Visa Card", logo: "/logos/credit.png" },
+  { value: "master", label: "Master Card", logo: "/logos/mastercard.png" },
   { value: "cash", label: "Cash on Delivery", logo: "/logos/cash.png" },
 ];
 
@@ -20,7 +18,6 @@ export default function PaymentModal({ isOpen, setIsOpen, onPaymentConfirm }) {
 
   const handleConfirm = () => {
     if (!paymentMethod) return alert("Please select a payment method.");
-    if (!paymentDetails) return alert("Enter payment info to continue.");
 
     onPaymentConfirm({ method: paymentMethod, details: paymentDetails });
     setIsOpen(false);
@@ -77,24 +74,25 @@ export default function PaymentModal({ isOpen, setIsOpen, onPaymentConfirm }) {
             <div className="mb-4">
               <label className="mb-1 block text-sm font-medium text-base-content">
                 {paymentMethod === "cash"
-                  ? "No info needed for Cash on Delivery"
-                  : "Enter Payment Details"}
+                  ? "Cash on Delivery selected"
+                  : "Selected method will open SSLCommerz gateway"}
               </label>
               <input
                 type="text"
                 className="w-full rounded-md border border-[#D4AF37]/15 bg-base-100 px-3 py-2 text-sm text-base-content outline-none placeholder:text-base-content/40 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20"
                 placeholder={
-                  paymentMethod === "bkash"
-                    ? "bKash Transaction ID"
-                    : paymentMethod === "nagad"
-                    ? "Nagad Transaction ID"
-                    : paymentMethod.includes("card")
-                    ? "Card Number"
-                    : "Payment Reference"
+                  paymentMethod !== "cash"
+                    ? "Optional note before SSLCommerz redirect"
+                    : "Optional note"
                 }
                 value={paymentDetails}
                 onChange={(e) => setPaymentDetails(e.target.value)}
               />
+              {paymentMethod !== "cash" ? (
+                <p className="mt-2 text-xs text-base-content/70">
+                  You will be redirected to SSLCommerz secure gateway to complete payment.
+                </p>
+              ) : null}
             </div>
           )}
 

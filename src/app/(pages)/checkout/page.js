@@ -5,9 +5,28 @@ import React from "react";
 import { useState, useEffect } from "react";
 import useForm from "@/app/hooks/useFrom";
 import useAuth from "@/app/hooks/useAuth";
-import { useCreateOrderMutation } from "@/redux/services/orderApi";
+import {
+  useCreateOrderMutation,
+  useInitiateSslPaymentMutation,
+} from "@/redux/services/orderApi";
 import PaymentModal from "@/app/components/PaymentModal";
 import { toast } from "sonner";
+
+const getSubmitErrorMessage = (err) => {
+  if (!err) return "Payment submit failed. Please try again.";
+
+  if (typeof err === "string") return err;
+
+  return (
+    err?.data?.message ||
+    err?.error ||
+    err?.message ||
+    (err?.status === "FETCH_ERROR"
+      ? "Could not reach server. Check backend is running and API URL is correct."
+      : null) ||
+    "Payment submit failed. Please try again."
+  );
+};
 
 const initialFormState = {
   userId: "",
@@ -27,26 +46,43 @@ const initialFormState = {
 
 function Chackout() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const { user } = useAuth();
   const { formData, setFormData, handleChange, resetForm } = useForm(initialFormState);
   const [createOrder, { isLoading: isSubmitting }] = useCreateOrderMutation();
+  const [initiateSslPayment, { isLoading: isInitiatingPayment }] =
+    useInitiateSslPaymentMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!checkoutItem.length) {
+      toast.error("No products found in checkout.");
+      return;
+    }
+
+    if (!formData.userId || !formData.name || !formData.email || !formData.number) {
+      toast.error("Please complete your customer information before payment.");
+      return;
+    }
+
     setIsModalOpen(true);
   };
 
-  const handlePaymentConfirm = async (method) => {
-    setSelectedPaymentMethod(method);
+  const handlePaymentConfirm = async (paymentInfo) => {
+    const method = paymentInfo?.method || "cash";
+    const details = paymentInfo?.details || "";
+    const isCod = method === "cash";
 
-    const Order = {
+    const orderPayload = {
       userId: formData.userId,
       full_name: formData.name,
       email: formData.email,
       address: formData.address,
       number: formData.number,
       paymentMethod: method,
+      paymentDetails: details,
+      paymentStatus: isCod ? "cod" : "pending",
+      paymentGateway: isCod ? "manual" : "sslcommerz",
       products: checkoutItem.map((item) => ({
         productId: item.productId,
         quantity: item.quantity,
@@ -56,13 +92,41 @@ function Chackout() {
       subtotal: subtotal,
     };
 
+    if (!orderPayload.userId) {
+      toast.error("User session not found. Please sign in again.");
+      return;
+    }
+
+    if (!orderPayload.products.length) {
+      toast.error("No products found for order submission.");
+      return;
+    }
+
     try {
-      await createOrder(Order).unwrap();
-      toast.success("Order submitted successfully");
+      if (!isCod) {
+        const response = await initiateSslPayment(orderPayload).unwrap();
+
+        if (response?.gatewayUrl) {
+          window.location.href = response.gatewayUrl;
+          return;
+        }
+
+        toast.error("Failed to initiate SSLCommerz payment");
+        return;
+      }
+
+      await createOrder(orderPayload).unwrap();
+      toast.success("Order submitted successfully (Cash on Delivery)");
       resetForm();
     } catch (err) {
-      console.error("Error submitting order:", err);
-      toast.error("Something went wrong!");
+      console.error("Error submitting order:", {
+        status: err?.status,
+        message: err?.message,
+        error: err?.error,
+        data: err?.data,
+      });
+      const errorMessage = getSubmitErrorMessage(err);
+      toast.error(errorMessage);
     }
   };
 
@@ -262,9 +326,10 @@ function Chackout() {
                 <div className="mt-6">
                   <button
                     type="submit"
+                    disabled={isSubmitting || isInitiatingPayment}
                     className="flex w-full justify-center rounded-md bg-[#D4AF37] px-3 py-1.5 text-sm/6 font-semibold text-black shadow-lg transition hover:bg-[#c9a42f] hover:shadow-[#D4AF37]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D4AF37]"
                   >
-                    Order Now
+                    {isSubmitting || isInitiatingPayment ? "Processing..." : "Order Now"}
                   </button>
                 </div>
               </form>
