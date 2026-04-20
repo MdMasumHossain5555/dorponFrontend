@@ -12,6 +12,7 @@ export default function NewArrivalsSection({
         title={title}
         subtitle={subtitle}
         actionLabel="Explore New"
+        actionHref="/shop?tag=new-arrivals"
       />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{children}</div>

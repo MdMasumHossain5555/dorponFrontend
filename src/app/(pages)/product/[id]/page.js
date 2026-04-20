@@ -2,8 +2,7 @@ import { faceProductByID } from "@/app/lib/products";
 import ProductDetail from "./ProductDetail";
 
 export default async function ProductPage({ params }) { 
-  const { id } = await params; // Destructure the id from params
-  console.log("Product ID:", id); // Log the product ID for debugging
+  const { id } = params;
   const product = await faceProductByID(id);
 
   if (!product) {

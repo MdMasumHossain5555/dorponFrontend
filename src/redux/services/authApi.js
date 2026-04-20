@@ -2,6 +2,7 @@ import { baseApi } from "./baseApi";
 import { setUser, clearUser } from "@/redux/features/auth/authSlice";
 
 export const authApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (body) => ({
@@ -78,19 +79,11 @@ export const authApi = baseApi.injectEndpoints({
           // Immediately clear user from Redux store
           dispatch(clearUser());
           // Also clear the getMe query cache
-          dispatch(
-            baseApi.util.updateQueryData('getMe', undefined, () => {
-              return null;
-            })
-          );
+          dispatch(baseApi.util.upsertQueryData("getMe", undefined, null));
         } catch (error) {
           // Even on error, clear the user
           dispatch(clearUser());
-          dispatch(
-            baseApi.util.updateQueryData('getMe', undefined, () => {
-              return null;
-            })
-          );
+          dispatch(baseApi.util.upsertQueryData("getMe", undefined, null));
         }
       },
     }),

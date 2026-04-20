@@ -190,10 +190,10 @@ function ProductDetail({ product }) {
                 </div>
               </div>
 
-              <div className="mb-6 space-x-4">
+              <div className="mb-6 flex flex-wrap items-center gap-3">
                 <label
                   htmlFor="quantity"
-                  className="mb-1 block text-sm font-medium text-base-content"
+                  className="w-full text-sm font-medium text-base-content"
                 >
                   Quantity:
                 </label>
@@ -226,11 +226,11 @@ function ProductDetail({ product }) {
                 </button>
               </div>
 
-              <div className="mb-6 flex space-x-4">
+              <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <button
                   onClick={handleAddToCart}
                   disabled={isLoading}
-                  className="flex items-center gap-2 rounded-md bg-[#D4AF37] px-6 py-2 text-black transition hover:bg-[#c9a42f] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-[#D4AF37] px-6 py-2 text-black transition hover:bg-[#c9a42f] focus:outline-none focus:ring-2 focus:ring-[#D4AF37] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -238,7 +238,7 @@ function ProductDetail({ product }) {
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="size-6"
+                    className="size-5 sm:size-6"
                   >
                     <path
                       strokeLinecap="round"
@@ -251,7 +251,7 @@ function ProductDetail({ product }) {
 
                 <button
                   onClick={handleWishlist}
-                  className={`flex items-center gap-2 rounded-md border px-6 py-2 transition focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:ring-offset-2 ${
+                  className={`flex w-full items-center justify-center gap-2 rounded-md border px-6 py-2 transition focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20 focus:ring-offset-2 sm:w-auto ${
                     inWishlist
                       ? "border-[#D4AF37] bg-[#D4AF37]/10 text-[#b89220]"
                       : "border-[#D4AF37]/20 bg-base-100 text-base-content hover:bg-[#D4AF37]/10 hover:text-[#b89220]"
@@ -263,7 +263,7 @@ function ProductDetail({ product }) {
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="size-6"
+                    className="size-5 sm:size-6"
                   >
                     <path
                       strokeLinecap="round"

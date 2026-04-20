@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { formatPrice } from '@/app/lib/formatPrice';
 import { useAddToCartMutation } from '@/redux/services/cartApi';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, compact = false }) {
   const productId = product?._id || product?.id || product?.productId;
   const { isInWishlist, toggleWishlist } = useWishlist();
   const inWishlist = isInWishlist(productId);
@@ -88,7 +88,9 @@ export default function ProductCard({ product }) {
               'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=400&h=400&fit=crop'
             }
             alt={product.name}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+            className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+              compact ? 'h-36 sm:h-40' : 'h-48'
+            }`}
           />
         </Link>
 
@@ -153,7 +155,9 @@ export default function ProductCard({ product }) {
       <div className="p-3 flex flex-col flex-1">
         <Link
           href={`/product/${productId}`}
-          className="font-medium text-gray-800 hover:text-[#D4AF37] transition-colors line-clamp-2 text-sm leading-tight flex-1"
+          className={`font-medium text-gray-800 transition-colors text-sm leading-tight flex-1 hover:text-[#D4AF37] ${
+            compact ? 'line-clamp-1 sm:line-clamp-2' : 'line-clamp-2'
+          }`}
         >
           {product.name}
         </Link>

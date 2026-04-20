@@ -5,8 +5,8 @@ export default function OfferProductsSection({
 }) {
   return (
     <section className="overflow-hidden rounded-[32px] border border-warning/20 bg-gradient-to-r from-[#1a1a1a] via-[#2a2113] to-[#1a1a1a] text-neutral-content shadow-2xl">
-      <div className="grid gap-8 px-6 py-14 md:px-8 lg:grid-cols-[0.95fr_2.05fr]">
-        <div className="flex flex-col justify-center">
+      <div className="grid gap-8 px-6 py-12 md:px-8 lg:grid-cols-[0.95fr_2.05fr]">
+        <div className="flex flex-col justify-start">
           <span className="inline-flex w-fit rounded-full border border-warning/30 bg-warning/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-warning">
             Limited Offer
           </span>
@@ -19,9 +19,9 @@ export default function OfferProductsSection({
             {subtitle}
           </p>
 
-          <div className="mt-7">
+          <div className="mt-6">
             <a
-              href="#"
+              href="/shop?tag=offer-products"
               className="btn rounded-full border-none bg-warning px-7 text-base-100 shadow-lg shadow-warning/30 hover:bg-warning"
             >
               Shop Offers

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function PromoBannerSection() {
   return (
@@ -7,7 +8,7 @@ export default function PromoBannerSection() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/banner.jpg"
+          src="/images/banner.png"
           alt="Beauty Banner"
           fill
           className="object-cover opacity-30"
@@ -31,24 +32,24 @@ export default function PromoBannerSection() {
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-8 text-neutral-content/75 md:text-lg">
-            Premium skincare, elegant makeup and luxurious beauty essentials
-            highlight করার জন্য এই hero banner section perfect.
+            Discover premium skincare, refined makeup, and luxury beauty
+            essentials crafted to elevate your everyday routine.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="#"
+            <Link
+              href="/shop"
               className="btn rounded-full border-none bg-warning px-7 text-base-100 shadow-lg shadow-warning/30 hover:bg-warning"
             >
               Shop Now
-            </a>
+            </Link>
 
-            <a
-              href="#"
+            <Link
+              href="/shop?category=skincare"
               className="btn rounded-full border border-warning/30 bg-transparent px-7 text-warning hover:border-warning hover:bg-warning/10"
             >
               Explore Collection
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -59,7 +60,7 @@ export default function PromoBannerSection() {
           <div className="relative overflow-hidden rounded-[28px] border border-warning/20 bg-base-100/5 p-6 backdrop-blur">
             
             <Image
-              src="/images/skincare.jpg"
+              src="/images/skincare.png"
               alt="Skincare"
               fill
               className="object-cover opacity-20"
@@ -71,7 +72,8 @@ export default function PromoBannerSection() {
               </p>
               <h3 className="mt-3 text-2xl font-bold">Luxury Skin Ritual</h3>
               <p className="mt-2 text-sm leading-6 text-neutral-content/70">
-                Premium skincare and daily essentials highlight করার জন্য।
+                Nourishing formulas and daily essentials designed for healthy,
+                radiant skin.
               </p>
             </div>
           </div>
@@ -80,7 +82,7 @@ export default function PromoBannerSection() {
           <div className="relative overflow-hidden rounded-[28px] border border-warning/20 bg-warning p-6 text-base-100">
             
             <Image
-              src="/images/offer.jpg"
+              src="/images/offer.png"
               alt="Offer"
               fill
               className="object-cover opacity-20"
@@ -92,7 +94,8 @@ export default function PromoBannerSection() {
               </p>
               <h3 className="mt-3 text-2xl font-bold">Golden Glow Sale</h3>
               <p className="mt-2 text-sm leading-6 text-base-100/80">
-                Campaign বা festive promotion দেখানোর জন্য strong block।
+                A limited-time seasonal campaign featuring exclusive deals on
+                your beauty favorites.
               </p>
             </div>
           </div>
@@ -101,7 +104,7 @@ export default function PromoBannerSection() {
           <div className="relative overflow-hidden rounded-[28px] border border-warning/20 bg-base-100/5 p-6 backdrop-blur sm:col-span-2">
             
             <Image
-              src="/images/jewelry.jpg"
+              src="/images/jewelry.png"
               alt="Jewelry"
               fill
               className="object-cover opacity-10"
@@ -112,7 +115,8 @@ export default function PromoBannerSection() {
                 Signature Collection
               </p>
               <h3 className="mt-3 text-2xl font-bold">
-                Elegant beauty sections for a luxury cosmetics homepage
+                Curated collections inspired by timeless elegance and modern
+                beauty trends
               </h3>
             </div>
           </div>

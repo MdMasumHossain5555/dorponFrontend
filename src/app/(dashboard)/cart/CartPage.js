@@ -127,7 +127,7 @@ function CartPage({ productData = [] }) {
                 return (
                   <div
                     key={product.productId}
-                    className="justify-between mb-6 rounded-lg bg-base-100 p-6 shadow-md sm:flex sm:justify-start border border-[#D4AF37]/10"
+                    className="mb-6 rounded-lg border border-[#D4AF37]/10 bg-base-100 p-4 shadow-md sm:flex sm:justify-start sm:p-6"
                   >
                     <Image
                       width={400}
@@ -135,18 +135,18 @@ function CartPage({ productData = [] }) {
                       src={product.images && product.images.length > 0 ? product.images[0] : "/placeholder.png"}
                       alt={product.name || "Product"}
                       unoptimized
-                      className="w-full rounded-lg sm:w-40"
+                      className="h-36 w-full rounded-lg object-cover sm:h-28 sm:w-40 sm:shrink-0"
                     />
                     <div className="sm:ml-4 sm:flex sm:w-full sm:justify-between">
                       <div className="mt-5 sm:mt-0">
-                        <h2 className="text-lg font-bold text-base-content">
+                        <h2 className="line-clamp-2 text-lg font-bold text-base-content">
                           {product.name}
                         </h2>
                         <p className="mt-1 text-xs text-base-content/70">
                           36EU - 4US
                         </p>
                       </div>
-                      <div className="mt-4 flex justify-between sm:space-y-6 sm:mt-0 sm:block sm:space-x-6">
+                      <div className="mt-4 flex flex-col gap-3 sm:mt-0 sm:block sm:space-y-6">
                         <div className="flex items-center border-gray-100">
                           <button
                             onClick={() => decrease(index)}
@@ -171,7 +171,7 @@ function CartPage({ productData = [] }) {
                           >
                             +
                           </button>
-                          <div className="mt-4 ml-auto sm:mt-0">
+                          <div className="ml-3 sm:ml-auto">
                             <input
                               className="w-4 h-4 cursor-pointer accent-[#D4AF37]"
                               type="checkbox"
@@ -181,7 +181,7 @@ function CartPage({ productData = [] }) {
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-4">
+                        <div className="flex flex-wrap items-center gap-3">
                           <p className="text-sm text-base-content">
                             Unit Price : Tk. {product.price}
                           </p>

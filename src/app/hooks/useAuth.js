@@ -1,8 +1,6 @@
 "use client";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useGetMeQuery } from "@/redux/services/authApi";
-import { setUser, clearUser } from "@/redux/features/auth/authSlice";
 
 /**
  * Custom hook to check user authentication status
@@ -12,27 +10,15 @@ import { setUser, clearUser } from "@/redux/features/auth/authSlice";
  * @returns {Object} { user, isLoading, error, isAuthenticated, refetch }
  */
 export function useAuth() {
-  const dispatch = useDispatch();
-
   // Read user from Redux state (gets updated immediately on login/logout)
   const user = useSelector((state) => state.auth?.user);
   
   // Still fetch from API to keep data in sync
-  const { data: meUser, isLoading, error, refetch } = useGetMeQuery();
+  const { isLoading, error, refetch } = useGetMeQuery();
 
-  useEffect(() => {
-    if (meUser) {
-      dispatch(setUser(meUser));
-      return;
-    }
-
-    if (error) {
-      dispatch(clearUser());
-    }
-  }, [dispatch, meUser, error]);
-  
-  const activeUser = user || meUser || null;
-  const isAuthenticated = !!activeUser && !error;
+  // Use Redux user as the source of truth so login/logout updates render immediately.
+  const activeUser = user;
+  const isAuthenticated = !!activeUser;
   
   return {
     user: activeUser,

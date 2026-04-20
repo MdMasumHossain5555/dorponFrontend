@@ -1,6 +1,7 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CgShoppingCart } from "react-icons/cg";
 import { FaUserCircle } from "react-icons/fa";
 import { Heart } from "lucide-react";
@@ -8,19 +9,50 @@ import { useAuth } from "@/app/hooks/useAuth";
 import { useWishlist } from "@/app/hooks/useWishlist";
 import { useLogoutUserMutation } from "@/redux/services/authApi";
 import { useGetCartQuery } from "@/redux/services/cartApi";
+import { useGetProductsQuery } from "@/redux/services/productApi";
 import { useTheme } from "next-themes";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 function Navbar() {
   const { user, isLoading } = useAuth();
   const { wishlistCount } = useWishlist();
   const [logoutUser, { isLoading: isLoggingOut }] = useLogoutUserMutation();
   const { data: cartData } = useGetCartQuery(undefined, { skip: !user });
+  const { data: productsData } = useGetProductsQuery();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { theme, setTheme } = useTheme();
+  const [searchValue, setSearchValue] = useState("");
+  const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
+
+  useEffect(() => {
+    setSearchValue(searchParams.get("search") || "");
+  }, [searchParams]);
 
   const cartItems = Array.isArray(cartData) ? cartData : cartData?.data || [];
+  const allProducts = Array.isArray(productsData) ? productsData : productsData?.data || [];
+  const normalizedSearchValue = searchValue.trim().toLowerCase();
+
+  const suggestions = useMemo(() => {
+    if (!normalizedSearchValue) return [];
+
+    return allProducts
+      .filter((product) => {
+        const searchableText = [
+          product?.name,
+          product?.description,
+          product?.category,
+          product?.sku,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return searchableText.includes(normalizedSearchValue);
+      })
+      .slice(0, 6);
+  }, [allProducts, normalizedSearchValue]);
   const cartCount = cartItems.reduce((sum, cart) => {
     const quantityFromItems = (cart?.products || []).reduce(
       (itemSum, item) => itemSum + (Number(item?.quantity) > 0 ? Number(item.quantity) : 0),
@@ -42,6 +74,40 @@ function Navbar() {
       // Still navigate even if logout fails
       router.push("/");
     }
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setIsSuggestionOpen(false);
+
+    const nextSearchValue = searchValue.trim();
+    runSearch(nextSearchValue);
+  };
+
+  const runSearch = (value) => {
+    const nextSearchValue = String(value || "").trim();
+    const params =
+      pathname === "/shop"
+        ? new URLSearchParams(searchParams.toString())
+        : new URLSearchParams();
+
+    if (nextSearchValue) {
+      params.set("search", nextSearchValue);
+    } else {
+      params.delete("search");
+    }
+
+    const query = params.toString();
+    router.push(query ? `/shop?${query}` : "/shop");
+  };
+
+  const handleSuggestionSelect = (name) => {
+    const selectedName = String(name || "").trim();
+    if (!selectedName) return;
+
+    setSearchValue(selectedName);
+    setIsSuggestionOpen(false);
+    runSearch(selectedName);
   };
 
   const navItem = (
@@ -70,7 +136,7 @@ function Navbar() {
       <div className="fixed top-0 left-0 z-50 w-full">
         <div className="container max-w-screen-2xl">
           <div className="navbar py-5 rounded-2xl border border-[#D4AF37]/15 bg-[#111111]/95 text-white shadow-[0_10px_35px_rgba(0,0,0,0.35)] backdrop-blur-md">
-            <div className="navbar-start px-2 md:px-6">
+            <div className="navbar-start w-auto min-w-0 flex-1 px-2 md:px-6">
               <div className="dropdown">
                 <div
                   tabIndex={0}
@@ -101,25 +167,15 @@ function Navbar() {
                 </ul>
               </div>
 
-              <Link href={"/"} className="btn btn-ghost gap-1 text-xl hover:bg-transparent">
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#D4AF37] text-sm font-bold text-black sm:h-5 sm:w-5 sm:text-sm md:h-8 md:w-8 md:text-2xl">
-                  D
-                </span>
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#c9a42f] text-sm font-bold text-black sm:h-5 sm:w-5 sm:text-sm md:h-8 md:w-8 md:text-2xl">
-                  O
-                </span>
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#b89220] text-sm font-bold text-black sm:h-5 sm:w-5 sm:text-sm md:h-8 md:w-8 md:text-2xl">
-                  R
-                </span>
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#D4AF37] text-sm font-bold text-black sm:h-5 sm:w-5 sm:text-sm md:h-8 md:w-8 md:text-2xl">
-                  P
-                </span>
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#c9a42f] text-sm font-bold text-black sm:h-5 sm:w-5 sm:text-sm md:h-8 md:w-8 md:text-2xl">
-                  O
-                </span>
-                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#b89220] text-sm font-bold text-black sm:h-5 sm:w-5 sm:text-sm md:h-8 md:w-8 md:text-2xl">
-                  N
-                </span>
+              <Link href={"/"} className="btn btn-ghost min-w-0 px-1 hover:bg-transparent">
+                <Image
+                  src="/b_logo.png"
+                  alt="Dorpon logo"
+                  width={320}
+                  height={100}
+                  priority
+                  className="h-9 w-auto max-w-[118px] object-contain sm:h-10 sm:max-w-[140px] md:h-12 md:max-w-none"
+                />
               </Link>
             </div>
 
@@ -127,8 +183,12 @@ function Navbar() {
               <ul className="menu menu-horizontal px-1">{navItem}</ul>
             </div>
 
-            <div className="hidden md:block">
-              <label className="flex items-center gap-3 rounded-xl border border-[#D4AF37]/15 bg-[#171717] px-3 py-2 text-white">
+            {/* Desktop Search Bar */}
+            <div className="relative hidden md:block">
+              <form
+                onSubmit={handleSearchSubmit}
+                className="flex items-center gap-3 rounded-xl border border-[#D4AF37]/15 bg-[#171717] px-3 py-2 text-white"
+              >
                 <svg
                   className="h-[1em] opacity-60"
                   xmlns="http://www.w3.org/2000/svg"
@@ -150,11 +210,197 @@ function Navbar() {
                   type="search"
                   className="grow bg-transparent text-white placeholder:text-white/40 focus:outline-none"
                   placeholder="Search"
+                  value={searchValue}
+                  onChange={(e) => {
+                    setSearchValue(e.target.value);
+                    setIsSuggestionOpen(true);
+                  }}
+                  onFocus={() => setIsSuggestionOpen(true)}
+                  onBlur={() => {
+                    setTimeout(() => {
+                      setIsSuggestionOpen(false);
+                    }, 120);
+                  }}
+                  aria-label="Search products"
                 />
-              </label>
+              </form>
+
+              {isSuggestionOpen && normalizedSearchValue && (
+                <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-[70] overflow-hidden rounded-xl border border-[#D4AF37]/15 bg-[#171717] shadow-xl">
+                  {suggestions.length > 0 ? (
+                    <ul className="max-h-72 overflow-y-auto py-1">
+                      {suggestions.map((product, index) => {
+                        const productName = product?.name || "";
+                        if (!productName) return null;
+
+                        return (
+                          <li key={product?._id || product?.id || `${productName}-${index}`}>
+                            <button
+                              type="button"
+                              onMouseDown={(e) => e.preventDefault()}
+                              onClick={() => handleSuggestionSelect(productName)}
+                              className="block px-3 py-2 text-sm text-white/85 transition hover:bg-[#D4AF37]/10 hover:text-[#D4AF37]"
+                            >
+                              {productName}
+                            </button>
+                          </li>
+                        );
+                      })}
+                      <li className="border-t border-[#D4AF37]/10">
+                        <button
+                          type="submit"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setIsSuggestionOpen(false);
+                            runSearch(searchValue);
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm font-medium text-[#D4AF37] transition hover:bg-[#D4AF37]/10"
+                        >
+                          See all results for "{searchValue.trim()}"
+                        </button>
+                      </li>
+                    </ul>
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-white/55">No matching products</div>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="navbar-end flex items-center gap-1 md:gap-2.5 md:px-10">
+            <div className="navbar-end w-auto flex-1 items-center justify-end gap-1 px-2 md:gap-2.5 md:px-10">
+              {/* Mobile Search Icon */}
+              <div className="md:hidden">
+                <button
+                  tabIndex={0}
+                  onClick={() => setIsSuggestionOpen(true)}
+                  className="btn btn-ghost text-white hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] h-8 w-8 p-0 min-h-0"
+                  aria-label="Search"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <g
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                      strokeWidth="2.5"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.3-4.3"></path>
+                    </g>
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Mobile Search Modal - Centered */}
+              {isSuggestionOpen && (
+                <div className="fixed inset-0 z-[70] md:hidden bg-black/50 flex items-start justify-center pt-20">
+                  <div
+                    className="p-3 rounded-xl border border-[#D4AF37]/15 bg-[#171717] shadow-xl w-80 sm:w-96 mx-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <form
+                      onSubmit={handleSearchSubmit}
+                      className="flex items-center gap-2 mb-3"
+                    >
+                      <input
+                        type="search"
+                        autoFocus
+                        className="grow bg-[#111111] border border-[#D4AF37]/15 rounded-lg text-white placeholder:text-white/40 focus:outline-none focus:border-[#D4AF37]/50 px-3 py-2 text-sm"
+                        placeholder="Search..."
+                        value={searchValue}
+                        onChange={(e) => {
+                          setSearchValue(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setIsSuggestionOpen(false);
+                          }
+                        }}
+                        aria-label="Search products"
+                      />
+                      <button
+                        type="submit"
+                        className="btn btn-sm bg-[#D4AF37] hover:bg-[#c9a42f] text-black border-0 min-h-0 h-9"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <g
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                            strokeWidth="2.5"
+                          >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                          </g>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsSuggestionOpen(false)}
+                        className="btn btn-sm btn-ghost text-white hover:bg-[#D4AF37]/10 border-0 min-h-0 h-9"
+                      >
+                        ✕
+                      </button>
+                    </form>
+
+                    {normalizedSearchValue && (
+                      <div className="overflow-hidden rounded-lg border border-[#D4AF37]/15 bg-[#111111]">
+                        {suggestions.length > 0 ? (
+                          <ul className="max-h-60 overflow-y-auto">
+                            {suggestions.map((product, index) => {
+                              const productName = product?.name || "";
+                              if (!productName) return null;
+
+                              return (
+                                <li key={product?._id || product?.id || `${productName}-${index}`}>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleSuggestionSelect(productName);
+                                      setIsSuggestionOpen(false);
+                                    }}
+                                    className="block w-full px-3 py-2 text-sm text-white/85 transition hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] text-left"
+                                  >
+                                    {productName}
+                                  </button>
+                                </li>
+                              );
+                            })}
+                            <li className="border-t border-[#D4AF37]/10">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsSuggestionOpen(false);
+                                  runSearch(searchValue);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm font-medium text-[#D4AF37] transition hover:bg-[#D4AF37]/10"
+                              >
+                                See all results for "{searchValue.trim()}"
+                              </button>
+                            </li>
+                          </ul>
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-white/55">No matching products</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div 
+                    className="fixed inset-0 z-[-1]"
+                    onClick={() => setIsSuggestionOpen(false)}
+                  ></div>
+                </div>
+              )}
+
               {/* <div>
                 <label className="swap swap-rotate text-white">
                   <input
@@ -182,7 +428,7 @@ function Navbar() {
                 </label>
               </div> */}
 
-              <div className="h-8 w-8 flex items-center justify-center">
+              <div className="h-8 w-8 shrink-0 flex items-center justify-center">
                 <Link
                   href={"/wishlist"}
                   className="relative inline-flex h-8 w-8 items-center justify-center text-white transition hover:text-[#D4AF37]"
@@ -196,7 +442,7 @@ function Navbar() {
                 </Link>
               </div>
 
-              <div className="h-8 w-8 flex items-center justify-center">
+              <div className="h-8 w-8 shrink-0 flex items-center justify-center">
                 <Link
                   href={"/cart"}
                   className="relative inline-flex h-8 w-8 items-center justify-center text-white transition hover:text-[#D4AF37]"
@@ -210,7 +456,7 @@ function Navbar() {
                 </Link>
               </div>
 
-              <div className="h-8 w-8 flex items-center justify-center">
+              <div className="shrink-0 flex items-center justify-center">
                 {isLoading ? (
                   <div className="animate-pulse h-8 w-8 flex items-center justify-center">
                     <FaUserCircle className="h-5 w-5 text-gray-400" />
@@ -240,7 +486,7 @@ function Navbar() {
                 ) : (
                   <Link
                     href={`/signin?redirect=${encodeURIComponent(pathname || "/")}`}
-                    className="btn rounded-full border border-[#D4AF37] bg-[#D4AF37] text-black hover:bg-[#c9a42f]"
+                    className="btn h-9 min-h-0 rounded-full border border-[#D4AF37] bg-[#D4AF37] px-4 text-black whitespace-nowrap hover:bg-[#c9a42f]"
                   >
                     Sign in
                   </Link>

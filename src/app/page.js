@@ -147,12 +147,12 @@ export default function Home() {
 
       <TopProductsSection>
         {topProducts.map((item) => (
-          <ProductCard key={item._id} product={item} />
+          <ProductCard key={item._id} product={item} compact />
         ))}
       </TopProductsSection>
 
       <OfferProductsSection>
-        {offerProducts.map((item) => (
+        {offerProducts.slice(0, 6).map((item) => (
           <ProductCard key={item._id} product={item} />
         ))}
       </OfferProductsSection>
